@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>La MLS en Français — Magazines numériques à feuilleter</title>
+  <meta name="description" content="Plateforme personnelle pour publier et lire des magazines numériques, comme un kiosque Heyzine à votre nom.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="img/logo.png">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="index.html">
+        <img class="brand-logo" src="img/logo.png" alt="Logo La MLS en Français">
+        <span class="brand-text">
+          <span class="brand-mark">La MLS en Français</span>
+        </span>
+      </a>
+      <button class="menu-btn" aria-label="Menu">☰</button>
+      <nav>
+        <a class="active" href="index.html">Accueil</a>
+        <a href="articles.html">Articles</a>
+        <a href="bibliotheque.html">Magazines</a>
+        <a href="#suivre">Où me suivre</a>
+        <a href="a-propos.html">À propos</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="intro-strip">
+    <div class="wrap">
+      <p class="intro-line">La Major League Soccer racontée depuis la France.</p>
+    </div>
+  </section>
+
+  <section class="une-section">
+    <div class="wrap une-layout">
+      <div>
+        <div class="une-title">À la une</div>
+        <div id="home-une" class="une-list"></div>
+      </div>
+      <aside class="panel une-aside">
+        <p class="kicker">X · @MLS_FRA2</p>
+        <h2>L’actualité de la MLS</h2>
+        <div class="tweet-feed">
+          <a class="x-card" href="https://x.com/MLS_FRA2/status/2094117646123811043" target="_blank" rel="noopener">
+            <img class="x-ava" src="https://pbs.twimg.com/profile_images/1774549458396602368/0H__IZJH.jpg" alt="">
+            <div>
+              <div class="x-meta"><strong>La MLS en Français</strong> <span>@MLS_FRA2 · 30 août</span></div>
+              <p>Il fallait que Messi marque son quadruplé contre le CF Montréal hein…</p>
+            </div>
+          </a>
+          <a class="x-card" href="https://x.com/MLS_FRA2/status/2091946513496752566" target="_blank" rel="noopener">
+            <img class="x-ava" src="https://pbs.twimg.com/profile_images/1774549458396602368/0H__IZJH.jpg" alt="">
+            <div>
+              <div class="x-meta"><strong>La MLS en Français</strong> <span>@MLS_FRA2 · 24 août</span></div>
+              <p>Certains le savent, j’ai créé le 1er magazine numérique dédié à la MLS. Issuu l’avait fait disparaître — il est de nouveau à feuilleter.</p>
+            </div>
+          </a>
+          <a class="x-card" href="https://x.com/MLS_FRA2/status/2091621603322818919" target="_blank" rel="noopener">
+            <img class="x-ava" src="https://pbs.twimg.com/profile_images/1774549458396602368/0H__IZJH.jpg" alt="">
+            <div>
+              <div class="x-meta"><strong>La MLS en Français</strong> <span>@MLS_FRA2 · 23 août</span></div>
+              <p>Oui oui l’Atalanta, bien sûr !</p>
+            </div>
+          </a>
+          <a class="x-card" href="https://x.com/MLS_FRA2/status/2090042349510443375" target="_blank" rel="noopener">
+            <img class="x-ava" src="https://pbs.twimg.com/profile_images/1774549458396602368/0H__IZJH.jpg" alt="">
+            <div>
+              <div class="x-meta"><strong>La MLS en Français</strong> <span>@MLS_FRA2 · 19 août</span></div>
+              <p>Le nom du compte MLS a encore fait parler…</p>
+            </div>
+          </a>
+          <a class="x-card" href="https://x.com/MLS_FRA2/status/2087284023978492315" target="_blank" rel="noopener">
+            <img class="x-ava" src="https://pbs.twimg.com/profile_images/1774549458396602368/0H__IZJH.jpg" alt="">
+            <div>
+              <div class="x-meta"><strong>La MLS en Français</strong> <span>@MLS_FRA2 · 11 août</span></div>
+              <p>Après Di Vaio, Wanyama, Taïder et Drogba : Alexis Sánchez au CF Montréal.</p>
+            </div>
+          </a>
+        </div>
+        <a class="text-link" href="https://x.com/MLS_FRA2" target="_blank" rel="noopener">Tous les posts →</a>
+      </aside>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap">
+      <div class="panel">
+        <p class="kicker">MLS · Live</p>
+        <h2>Matchs et scores</h2>
+        <div class="score-mini-list" id="score-live">
+          <p class="search-hint">Chargement des scores…</p>
+        </div>
+        <a class="text-link" href="https://www.sofascore.com/fr/football/tournament/usa/mls/242" target="_blank" rel="noopener">Tous les scores →</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="suivre">
+    <div class="wrap">
+      <p class="kicker">Réseaux</p>
+      <h2>Où me suivre</h2>
+      <div class="follow-row">
+        <a href="https://x.com/MLS_FRA2" target="_blank" rel="noopener">X <strong>@MLS_FRA2</strong></a>
+        <a href="https://www.instagram.com/" target="_blank" rel="noopener">Instagram <strong>lien à envoyer</strong></a>
+        <a href="https://www.facebook.com/MLS.FRA" target="_blank" rel="noopener">Facebook <strong>MLS.FRA</strong></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="support" id="soutenir">
+    <div class="wrap">
+      <p class="kicker">Indépendant</p>
+      <h2>Soutenir le site</h2>
+      <p>Pas de publicité. Si tu lis souvent, tu peux participer à l’hébergement — un café, pas un abonnement.</p>
+      <div class="wero-box" id="wero-box">
+        <img src="img/wero-qr.jpg" alt="QR Wero Arnaud Salas">
+      </div>
+      <p class="comment-note"><strong>Arnaud Salas · Wero</strong><br>
+        Ordinateur : flashe ce QR avec l’appareil photo ou Wero sur ton téléphone.<br>
+        Téléphone : ouvre Wero / l’app banque → Envoyer → cherche <strong>Arnaud Salas</strong>. Un QR sur le même écran ne se flashe pas facilement.</p>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap footer-inner">
+      <div>La MLS en Français</div>
+      <div><a href="#soutenir">Soutenir</a> · <a href="https://x.com/MLS_FRA2">@MLS_FRA2</a> · <a href="https://www.facebook.com/MLS.FRA">Facebook</a></div>
+    </div>
+  </footer>
+
+  <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+  <script src="data/magazines.js"></script>
+  <script src="data/articles.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    if (window.renderHomeUne) renderHomeUne("#home-une");
+    if (window.loadXFeed) loadXFeed(".tweet-feed");
+    if (window.loadMlsNews) loadMlsNews("#mls-news");
+    if (window.loadMlsScores) loadMlsScores("#score-live");
+  </script>
+</body>
+</html>

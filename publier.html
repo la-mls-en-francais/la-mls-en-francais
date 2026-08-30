@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Publier  — La MLS en Français</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="img/logo.png">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="index.html">
+        <img class="brand-logo" src="img/logo.png" alt="Logo La MLS en Français">
+        <span class="brand-text">
+          <span class="brand-mark">MLS</span>
+          <span class="brand-sub">en Français</span>
+        </span>
+      </a>
+      <button class="menu-btn" aria-label="Menu">☰</button>
+      <nav>
+        <a href="index.html">Accueil</a>
+        <a href="bibliotheque.html">Magazines</a>
+        <a href="articles.html">Articles</a>
+        <a href="a-propos.html">À propos</a>
+        <a class="nav-cta" href="lire.html?id=mls-n1">Feuilleter</a>
+      </nav>
+    </div>
+  </header>
+
+  <section>
+    <div class="wrap prose">
+      <p class="eyebrow">Mode d’emploi</p>
+      <h1>Comment publier</h1>
+      <p><strong>Depuis le téléphone :</strong> va sur la page <a href="ecrire.html">Écrire</a>, colle ton article, appuie sur Aperçu, puis Copier. Envoie ce texte pour qu’il apparaisse pour tout le monde.</p>
+      <p>Le site s’adapte au téléphone et à l’ordinateur : gros boutons, menu ☰, textes lisibles.</p>
+
+      <div class="note">
+        Pour que le site ait une vraie adresse internet : un jour, sur un ordinateur, glisse le dossier <strong>folio</strong> sur <a href="https://app.netlify.com/drop">Netlify Drop</a>. Gratuit. Pas besoin de coder.
+      </div>
+
+      <h3>Méthode 1 — Pages images (lecteur Folio)</h3>
+      <p>Exportez chaque page de votre magazine en JPG ou PNG (depuis InDesign, Canva, Affinity, ou un PDF via aperçu / Acrobat). Placez-les dans <code>img/</code>, puis ajoutez une entrée dans <code>data/magazines.js</code> :</p>
+      <pre class="code">{
+  id: "mon-magazine-01",
+  title: "Mon magazine",
+  issue: "N° 01",
+  category: "Culture",
+  date: "Août 2026",
+  pages: 36,
+  featured: true,
+  cover: "img/mon-magazine.jpg",
+  excerpt: "Une phrase d’accroche.",
+  description: "Le texte de l’édito.",
+  mode: "folio",
+  images: [
+    "img/mon-magazine.jpg",
+    "img/mon-magazine-p2.jpg",
+    "img/mon-magazine-p3.jpg"
+  ]
+}</pre>
+      <p>Le lecteur tourne ensuite ces pages comme un vrai magazine. Plus vous ajoutez d’images, plus le numéro est long.</p>
+
+      <h3>Méthode 2 — Intégrer un flipbook Heyzine</h3>
+      <p>Créez le magazine sur heyzine.com, récupérez le lien public (ou le code d’intégration), puis déclarez :</p>
+      <pre class="code">{
+  id: "catalogue-automne",
+  title: "Catalogue automne",
+  issue: "2026",
+  category: "Catalogue",
+  date: "Septembre 2026",
+  pages: 80,
+  cover: "img/catalogue.jpg",
+  excerpt: "Le nouveau catalogue.",
+  description: "Publié via Heyzine, lu ici.",
+  mode: "heyzine",
+  embedUrl: "https://heyzine.com/flip-book/xxxxxxxx.html"
+}</pre>
+      <p>Le lecteur Folio bascule alors en iframe plein cadre : vos visiteurs restent sur <em>votre</em> site, le feuilletage est celui de Heyzine.</p>
+
+      <h3>Méthode 3 — HTML exporté par Heyzine</h3>
+      <p>Sur les formules payantes, Heyzine permet de télécharger le flipbook en HTML autonome. Placez ce dossier dans le site (par exemple <code>revues/automne-2026/</code>) et pointez <code>embedUrl</code> vers <code>revues/automne-2026/index.html</code>. Vous n’êtes plus dépendant de leur cloud.</p>
+
+      <h3>Publier un article déjà écrit</h3>
+      <p>Ouvrez <code>data/articles.js</code>. Chaque texte est un objet. Collez votre article dans <code>body</code> en HTML simple (<code>&lt;p&gt;</code>, <code>&lt;h2&gt;</code>, éventuellement <code>&lt;blockquote&gt;</code> ou <code>&lt;em&gt;</code>).</p>
+      <pre class="code">{
+  id: "titre-de-mon-article",
+  title: "Titre de mon article",
+  category: "Culture",
+  date: "29 août 2026",
+  readTime: "6 min",
+  cover: "img/ma-photo.jpg",
+  excerpt: "Deux phrases pour donner envie.",
+  magazine: "horizon-12",
+  body: `
+    &lt;p class="chapo"&gt;Chapô optionnel.&lt;/p&gt;
+    &lt;p&gt;Premier paragraphe de votre texte déjà écrit.&lt;/p&gt;
+    &lt;h2&gt;Intertitre&lt;/h2&gt;
+    &lt;p&gt;Suite de l’article…&lt;/p&gt;
+  `
+}</pre>
+      <p><code>magazine</code> est optionnel : s’il correspond à l’<code>id</code> d’un numéro, un lien « Lire le magazine » apparaît en bas de l’article. Pour un texte indépendant, enlevez simplement cette ligne.</p>
+      <p>Astuce : depuis Word, copiez le texte, puis entourez chaque paragraphe de <code>&lt;p&gt;…&lt;/p&gt;</code>. Pas besoin de CMS.</p>
+
+      <h3>Personnaliser l’identité</h3>
+      <p>Changez le nom « Folio » dans les pages HTML, les couleurs dans <code>css/style.css</code> (<code>--ink</code>, <code>--paper</code>, <code>--gold</code>), et remplacez les images d’exemple. Ajoutez votre domaine et un favicon quand le site est en ligne.</p>
+
+      <p style="margin-top:32px">
+        <a class="btn" href="bibliotheque.html">Magazines</a>
+        <a class="btn ghost" href="articles.html">Articles</a>
+      </p>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap footer-inner">
+      <div>La MLS en Français</div>
+      <div>Site statique · prêt à héberger</div>
+    </div>
+  </footer>
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Écrire  — La MLS en Français</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="img/logo.png">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="index.html">
+        <img class="brand-logo" src="img/logo.png" alt="Logo La MLS en Français">
+        <span class="brand-text">
+          <span class="brand-mark">MLS</span>
+          <span class="brand-sub">en Français</span>
+        </span>
+      </a>
+      <button class="menu-btn" aria-label="Menu">☰</button>
+      <nav>
+        <a href="index.html">Accueil</a>
+        <a href="bibliotheque.html">Magazines</a>
+        <a href="articles.html">Articles</a>
+        <a href="a-propos.html">À propos</a>
+      </nav>
+    </div>
+  </header>
+
+  <section>
+    <div class="wrap prose">
+      <p class="eyebrow">Depuis le téléphone</p>
+      <h1>Écrire un article</h1>
+      <p>Remplis les cases, puis appuie sur <strong>Aperçu</strong>. Ton texte s’enregistre sur ce téléphone. Pour qu’il soit visible par tout le monde sur internet, envoie-le ensuite (bouton copier).</p>
+
+      <form class="form" id="form-article">
+        <label for="titre">Titre</label>
+        <input id="titre" name="titre" required placeholder="Le titre de ton article">
+
+        <label for="categorie">Rubrique</label>
+        <select id="categorie">
+          <option>Voyage</option>
+          <option>Savoir-faire</option>
+          <option>Culture</option>
+          <option>Gastronomie</option>
+          <option>Autre</option>
+        </select>
+
+        <label for="extrait">Accroche (1 ou 2 phrases)</label>
+        <input id="extrait" placeholder="Ce que le lecteur voit avant d’ouvrir">
+
+        <label for="texte">Ton article</label>
+        <textarea id="texte" required placeholder="Colle ici ton texte déjà écrit, ou écris-le directement."></textarea>
+
+        <div class="form-actions">
+          <button type="submit" class="btn">Aperçu</button>
+          <button type="button" class="btn ghost" id="btn-copy">Copier pour envoyer</button>
+        </div>
+      </form>
+
+      <p id="status" class="note" hidden></p>
+      <div id="preview" hidden style="margin-top:28px">
+        <p class="eyebrow">Aperçu</p>
+        <h2 id="prev-title"></h2>
+        <p class="article-meta" id="prev-meta"></p>
+        <div class="article-body" id="prev-body"></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap footer-inner">
+      <div>La MLS en Français — écriture simple, lecture sur tous les écrans.</div>
+    </div>
+  </footer>
+  <script src="js/app.js"></script>
+  <script src="js/ecrire.js"></script>
+</body>
+</html>
