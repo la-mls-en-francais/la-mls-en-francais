@@ -9,8 +9,51 @@
   window.folioSaveDrafts = function (list) {
     localStorage.setItem("folio_drafts", JSON.stringify(list));
   };
+  window.folioHitKey = function (kind, id) {
+    return encodeURIComponent("lamlsenfrancais") + "/" + encodeURIComponent(kind + "-" + id);
+  };
+  window.folioReadHits = function (kind, id) {
+    const url = "https://api.counterapi.dev/v1/" + window.folioHitKey(kind, id);
+    return fetch(url).then(function (r) { return r.json(); }).then(function (d) {
+      return (d && (d.count || d.value)) || 0;
+    }).catch(function () { return 0; });
+  };
+  window.folioBumpHits = function (kind, id) {
+    if (localStorage.getItem("folio_auth") === "1") return window.folioReadHits(kind, id);
+    if (localStorage.getItem("folio_nostats") === "1") return window.folioReadHits(kind, id);
+    const url = "https://api.counterapi.dev/v1/" + window.folioHitKey(kind, id) + "/up";
+    return fetch(url).then(function (r) { return r.json(); }).then(function (d) {
+      return (d && (d.count || d.value)) || 0;
+    }).catch(function () { return 0; });
+  };
+  window.folioHitsLabel = function (n) {
+    const v = parseInt(n, 10) || 0;
+    return v + " lecture" + (v > 1 ? "s" : "");
+  };
+  window.folioFillHits = function (root) {
+    const scope = root || document;
+    const nodes = scope.querySelectorAll("[data-hits]");
+    nodes.forEach(function (node) {
+      const raw = node.getAttribute("data-hits") || "";
+      const parts = raw.split(":");
+      if (parts.length < 2) return;
+      window.folioReadHits(parts[0], parts.slice(1).join(":")).then(function (n) {
+        node.textContent = window.folioHitsLabel(n);
+      });
+    });
+  };
   window.folioUnlocked = function () {
     return localStorage.getItem("folio_auth") === "1";
+  };
+  window.folioMagsLocal = function () {
+    try {
+      return JSON.parse(localStorage.getItem("folio_mags") || "[]");
+    } catch (e) {
+      return [];
+    }
+  };
+  window.folioSaveMags = function (list) {
+    localStorage.setItem("folio_mags", JSON.stringify(list));
   };
 
   (function mergeDrafts() {
@@ -22,17 +65,45 @@
     window.folioDrafts().forEach(function (a) {
       if (a && a.id) map[a.id] = a;
     });
-    window.FOLIO_ARTICLES = Object.keys(map)
+    const merged = Object.keys(map)
       .map(function (k) { return map[k]; })
       .sort(function (a, b) {
         return String(b.dateISO || b.date || "").localeCompare(String(a.dateISO || a.date || ""));
       });
+    window.FOLIO_ALL = merged;
+    window.FOLIO_ARTICLES = (localStorage.getItem("folio_auth") === "1")
+      ? merged
+      : merged.filter(function (a) { return a.status !== "draft"; });
   })();
+
+  (function mergeMags() {
+    const base = window.FOLIO_MAGAZINES || [];
+    const map = {};
+    base.forEach(function (m) { if (m && m.id) map[m.id] = m; });
+    window.folioMagsLocal().forEach(function (m) { if (m && m.id) map[m.id] = m; });
+    window.FOLIO_MAGAZINES = Object.keys(map).map(function (k) { return map[k]; });
+  })();
+
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js").catch(function () {});
+  }
 
   const nav = document.querySelector("nav");
   const btn = document.querySelector(".menu-btn");
   if (btn && nav) {
     btn.addEventListener("click", () => nav.classList.toggle("open"));
+  }
+
+  if (window.folioUnlocked && folioUnlocked()) {
+    try { localStorage.setItem("folio_nostats", "1"); } catch (e) {}
+    const navEl = document.querySelector("nav");
+    if (navEl && !navEl.querySelector("[data-redac]")) {
+      const a = document.createElement("a");
+      a.href = "redaction.html";
+      a.textContent = "Rédaction";
+      a.setAttribute("data-redac", "1");
+      navEl.appendChild(a);
+    }
   }
 
   const path = location.pathname.split("/").pop() || "index.html";
@@ -59,13 +130,14 @@
           <div class="mag-body">
             <div class="mag-cat">${m.category}</div>
             <h3>${m.title}</h3>
-            <div class="mag-meta">${m.issue} · ${m.pages} pages</div>
+            <div class="mag-meta">${m.issue} · ${m.pages} pages · <span data-hits="magazine:${m.id}">…</span></div>
             <p class="mag-excerpt">${m.excerpt}</p>
           </div>
         </a>
       </article>`
       )
       .join("");
+    if (window.folioFillHits) window.folioFillHits(el);
   };
 
   window.renderHomeUne = function (target) {
@@ -74,29 +146,40 @@
     const mags = (window.FOLIO_MAGAZINES || []).slice(0, 2);
     const arts = (window.FOLIO_ARTICLES || []).slice(0, 2);
     let html = "";
-    mags.forEach(function (mag) {
-      html += `<a class="une-row" href="lire.html?id=${encodeURIComponent(mag.id)}">
-        <img src="${mag.cover}" alt="">
-        <div>
-          <p class="kicker">Magazine · ${mag.issue || ""}</p>
-          <h3>${mag.title}</h3>
-          <p>${mag.excerpt || ""}</p>
-          <span>Découvrir le magazine →</span>
-        </div>
-      </a>`;
-    });
-    arts.forEach(function (art, i) {
-      html += `<a class="une-row" href="article.html?id=${encodeURIComponent(art.id)}">
-        <img src="${art.cover}" alt="">
-        <div>
-          <p class="kicker">Article${i === 0 ? " · dernier publié" : ""}</p>
-          <h3>${art.title}</h3>
-          <p>${art.excerpt || ""}</p>
-          <span>Lire la suite →</span>
-        </div>
-      </a>`;
-    });
+    if (mags.length) {
+      html += '<div class="une-block une-block-mag"><p class="une-label">Magazines</p>';
+      mags.forEach(function (mag) {
+        html += `<a class="une-row is-mag" href="lire.html?id=${encodeURIComponent(mag.id)}">
+          <img src="${mag.cover}" alt="">
+          <div>
+            <p class="kicker">Magazine · ${mag.issue || ""}</p>
+            <h3>${mag.title}</h3>
+            <p class="kicker"><span data-hits="magazine:${mag.id}">…</span></p>
+            <p>${mag.excerpt || ""}</p>
+            <span>Découvrir le magazine →</span>
+          </div>
+        </a>`;
+      });
+      html += "</div>";
+    }
+    if (arts.length) {
+      html += '<div class="une-block une-block-art"><p class="une-label">Articles</p>';
+      arts.forEach(function (art, i) {
+        html += `<a class="une-row is-art" href="article.html?id=${encodeURIComponent(art.id)}">
+          <img src="${art.cover}" alt="">
+          <div>
+            <p class="kicker">Article${i === 0 ? " · dernier publié" : ""}</p>
+            <h3>${art.title}</h3>
+            <p class="kicker"><span data-hits="article:${art.id}">…</span></p>
+            <p>${art.excerpt || ""}</p>
+            <span>Lire la suite →</span>
+          </div>
+        </a>`;
+      });
+      html += "</div>";
+    }
     el.innerHTML = html;
+    if (window.folioFillHits) window.folioFillHits(el);
   };
 
   window.loadXFeed = function (target) {
@@ -109,7 +192,7 @@
     ];
     const ava = "https://pbs.twimg.com/profile_images/1774549458396602368/0H__IZJH.jpg";
     function paint(items) {
-      el.innerHTML = items.slice(0, 5).map(function (it) {
+      el.innerHTML = items.slice(0, 6).map(function (it) {
         const d = it.date ? new Date(it.date) : null;
         const when = d && !isNaN(d) ? d.toLocaleDateString("fr-FR", { day: "numeric", month: "short" }) : "";
         const text = String(it.text || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
@@ -143,37 +226,128 @@
         })
         .catch(function () { tryFeed(i + 1); });
     }
-    fetch("/.netlify/functions/tweets")
-      .then(function (r) { if (!r.ok) throw new Error("fn"); return r.json(); })
-      .then(function (data) {
-        if (data && data.items && data.items.length) paint(data.items);
-        else throw new Error("empty");
-      })
-      .catch(function () { tryFeed(0); });
+    function fromApi(url) {
+      return fetch(url).then(function (r) {
+        if (!r.ok) throw new Error("fn");
+        return r.json();
+      }).then(function (data) {
+        const items = (data && data.items) || [];
+        if (!items.length) throw new Error("empty");
+        paint(items);
+      });
+    }
+    fromApi("/tweets")
+      .catch(function () { return fromApi("/api/tweets"); })
+      .catch(function () { return fromApi("https://mls-tweets.7vpwfnf74b.workers.dev/"); })
+      .catch(function () { return fromApi("/.netlify/functions/tweets"); })
+      .catch(function () { /* cartes déjà dans la page */ });
   };
 
-  window.loadMlsNews = function (target) {
-    const el = document.querySelector(target);
-    if (!el) return;
-    const rss = "https://news.google.com/rss/search?q=Major+League+Soccer+OR+MLS&hl=fr&gl=FR&ceid=FR:fr";
-    const url = "https://api.rss2json.com/v1/api.json?rss_url=" + encodeURIComponent(rss);
-    fetch(url)
-      .then((r) => r.json())
-      .then((data) => {
-        const items = (data.items || []).slice(0, 6);
-        if (!items.length) throw new Error("empty");
-        el.innerHTML = items
-          .map(
-            (it) => `<a class="news-item" href="${it.link}" target="_blank" rel="noopener">
-              <strong>${it.title}</strong>
-              <em>${(it.pubDate || "").slice(0, 16)}</em>
-            </a>`
-          )
-          .join("");
+  function folioNewsStore(key, incoming) {
+    var prev = [];
+    try { prev = JSON.parse(localStorage.getItem(key) || "[]"); } catch (err) { prev = []; }
+    var map = {};
+    prev.concat(incoming || []).forEach(function (it) {
+      if (!it || !it.title) return;
+      var k = String(it.title).toLowerCase().replace(/[^a-z0-9]+/g, " ").slice(0, 70);
+      var old = map[k];
+      if (!old || (it.ts || 0) >= (old.ts || 0)) map[k] = it;
+    });
+    var list = Object.keys(map).map(function (k) { return map[k]; });
+    list.sort(function (a, b) { return (b.ts || 0) - (a.ts || 0); });
+    list = list.slice(0, 150);
+    try { localStorage.setItem(key, JSON.stringify(list)); } catch (err) {}
+    return list;
+  }
+
+  window.loadMlsNews = function () {
+    const newsEl = document.querySelector("#mls-news");
+    const rumEl = document.querySelector("#mls-rumors");
+    if (!newsEl && !rumEl) return;
+    const newsLimit = 7;
+    const rumLimit = 7;
+    function isRumor(title) {
+      if (/\b(tracker|buts?|goals?|assists?|power ranking|hat-?trick|quadrupl|faits marquants)\b/i.test(title)) return false;
+      if (/^sources\s*:/i.test(title)) return true;
+      return /\b(transfer|transfers|trade|loan|loans|sign(?:s|ed|ing)?|joins?|joined|acquire[ds]?|rumour|rumor|deal|contract|waive[ds]?)\b/i.test(title);
+    }
+    function paint(el, items, empty) {
+      if (!el) return;
+      if (!items.length) {
+        el.innerHTML = "<p class='search-hint'>" + empty + "</p>";
+        return;
+      }
+      el.innerHTML = items.map(function (it) {
+        const img = it.img ? '<img class="news-cover" src="' + it.img + '" alt="">' : "";
+        return '<a class="news-item" href="' + it.link + '" target="_blank" rel="noopener">' +
+          img + "<div><strong>" + it.title + "</strong><em>" + (it.when || "") +
+          "</em></div></a>";
+      }).join("");
+    }
+    function translate(text) {
+      const src = String(text || "").trim();
+      if (!src) return Promise.resolve(src);
+      if (/[àâäéèêëïîôùûç]/i.test(src)) return Promise.resolve(src);
+      const q = encodeURIComponent(src.slice(0, 180));
+      return fetch("https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=fr&dt=t&q=" + q)
+        .then(function (r) { if (!r.ok) throw new Error("gtx"); return r.json(); })
+        .then(function (d) {
+          const out = (d && d[0] || []).map(function (row) { return row[0] || ""; }).join("");
+          if (out) return out;
+          throw new Error("empty");
+        })
+        .catch(function () {
+          return fetch("https://api.mymemory.translated.net/get?langpair=en|fr&q=" + q)
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+              const out = d && d.responseData && d.responseData.translatedText;
+              if (!out || /MYMEMORY|QUERY LENGTH|INVALID/i.test(out)) return src;
+              return out;
+            });
+        })
+        .catch(function () { return src; });
+    }
+    function pack(a) {
+      const d = a.published ? new Date(a.published) : null;
+      const title = a.headline || a.description || "";
+      return {
+        title: title,
+        link: (a.links && a.links.web && a.links.web.href) || "https://www.mlssoccer.com/news/",
+        when: d && !isNaN(d) ? d.toLocaleDateString("fr-FR", { day: "numeric", month: "short" }) : "",
+        img: (a.images && a.images[0] && (a.images[0].url || a.images[0].href)) || "",
+        rumor: isRumor(title),
+      };
+    }
+    function espnNews(url) {
+      return fetch(url).then(function (r) { if (!r.ok) throw new Error("espn"); return r.json(); }).catch(function () { return { articles: [] }; });
+    }
+    Promise.all([
+      espnNews("https://site.api.espn.com/apis/site/v2/sports/soccer/usa.1/news?limit=50"),
+      espnNews("https://site.api.espn.com/apis/site/v2/sports/soccer/news?limit=50")
+    ])
+      .then(function (feeds) {
+        const seen = {};
+        const all = [];
+        feeds.forEach(function (data) {
+          (data.articles || []).forEach(function (a) {
+            const it = pack(a);
+            if (!it.title || seen[it.title]) return;
+            seen[it.title] = 1;
+            all.push(it);
+          });
+        });
+        const rum = all.filter(function (it) { return it.rumor; }).slice(0, rumLimit);
+        const news = all.filter(function (it) { return !it.rumor; }).slice(0, newsLimit);
+        return Promise.all(news.concat(rum).map(function (it) {
+          return translate(it.title).then(function (fr) { it.title = fr; return it; });
+        })).then(function () {
+          paint(newsEl, news, "Pas de brève.");
+          paint(rumEl, rum, "Pas de rumeur.");
+        });
       })
-      .catch(() => {
-        el.innerHTML =
-          '<p class="lede" style="max-width:none">Le fil auto n’a pas pu se charger ici. Ouvre MLS.com ou le compte X.</p>';
+      .catch(function () {
+        paint(newsEl, [], "Actu indisponible.");
+        paint(rumEl, [], "Transferts indisponibles.");
       });
   };
 
@@ -189,7 +363,7 @@
           <div class="body">
             <div class="mag-cat">${a.category}</div>
             <h3>${a.title}</h3>
-            <div class="mag-meta">${a.date} · ${a.readTime}</div>
+            <div class="mag-meta">${a.date} · ${a.readTime} · <span data-hits="article:${a.id}">…</span></div>
             <p class="mag-excerpt">${a.excerpt}</p>
             <div class="article-read">Lire l’article</div>
           </div>
@@ -197,6 +371,7 @@
       </article>`
       )
       .join("");
+    if (window.folioFillHits) window.folioFillHits(el);
   };
 
   window.loadMlsScores = function (target) {
@@ -327,9 +502,7 @@
         if (nextIsLaterWeek && !showNext) chosen = lastFin;
       }
       return chosen.slice().sort(function (a, b) {
-        if (a.state === "in" && b.state !== "in") return -1;
-        if (b.state === "in" && a.state !== "in") return 1;
-        return b.date.localeCompare(a.date);
+        return a.date.localeCompare(b.date);
       });
     }
 
@@ -392,6 +565,156 @@
 
     load();
     setInterval(load, 45000);
+  };
+
+  window.loadMlsStandings = function (target) {
+    const el = document.querySelector(target);
+    if (!el) return;
+
+    function stat(entry, name) {
+      const s = (entry.stats || []).find(function (x) { return x.name === name; });
+      return s ? s.displayValue : "–";
+    }
+    function logo(team) {
+      const list = team.logos || [];
+      return list.length ? list[0].href : "";
+    }
+    function confName(raw) {
+      const n = String(raw || "");
+      if (/east/i.test(n)) return "Conférence Est";
+      if (/west/i.test(n)) return "Conférence Ouest";
+      return n;
+    }
+    function playoffKind(entry) {
+      const d = ((entry.note || {}).description || "").toLowerCase();
+      if (d.indexOf("wild card") !== -1) return "wc";
+      if (d.indexOf("playoff") !== -1) return "po";
+      return "";
+    }
+    function row(entry) {
+      const team = entry.team || {};
+      const rank = parseInt(stat(entry, "rank"), 10) || 0;
+      const kind = playoffKind(entry);
+      const cls = kind === "wc" ? "in-wc" : kind ? "in-po" : "";
+      const src = logo(team);
+      return (
+        '<tr class="' + cls + '">' +
+        "<td class='rk'>" + rank + "</td>" +
+        "<td class='club'>" +
+        (src ? '<img src="' + src + '" alt="">' : "") +
+        "<span>" + (team.displayName || team.name || "") + "</span></td>" +
+        "<td>" + stat(entry, "gamesPlayed") + "</td>" +
+        "<td>" + stat(entry, "wins") + "</td>" +
+        "<td>" + stat(entry, "ties") + "</td>" +
+        "<td>" + stat(entry, "losses") + "</td>" +
+        "<td>" + stat(entry, "pointDifferential") + "</td>" +
+        "<td class='pts'>" + stat(entry, "points") + "</td>" +
+        "</tr>"
+      );
+    }
+    function table(child) {
+      const entries = ((child.standings || {}).entries || []).slice().sort(function (a, b) {
+        return (parseInt(stat(a, "rank"), 10) || 99) - (parseInt(stat(b, "rank"), 10) || 99);
+      });
+      let html =
+        "<div class='stand-conf'><h3>" + confName(child.name) + "</h3>" +
+        "<div class='stand-scroll'><table class='stand'><thead><tr>" +
+        "<th>#</th><th>Club</th><th>MJ</th><th>V</th><th>N</th><th>D</th><th>Diff</th><th>Pts</th>" +
+        "</tr></thead><tbody>";
+      entries.forEach(function (e, i) {
+        const rank = parseInt(stat(e, "rank"), 10) || i + 1;
+        html += row(e);
+        if (rank === 7) html += "<tr class='po-line'><td colspan='8'>Playoffs — 1er tour</td></tr>";
+        if (rank === 9) html += "<tr class='po-line wc'><td colspan='8'>Wild Card</td></tr>";
+      });
+      html += "</tbody></table></div></div>";
+      return html;
+    }
+
+    const url = "https://site.api.espn.com/apis/v2/sports/soccer/usa.1/standings";
+    const proxy = "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
+    function ok(data) {
+      const kids = data.children || [];
+      if (!kids.length) throw new Error("empty");
+      el.innerHTML = "<h3 class='stand-title'>Classement MLS</h3><div class='stand-grid'>" +
+        kids.map(table).join("") + "</div>";
+    }
+    fetch(url)
+      .then(function (r) { if (!r.ok) throw new Error("espn"); return r.json(); })
+      .then(ok)
+      .catch(function () {
+        return fetch(proxy).then(function (r) { return r.json(); }).then(ok);
+      })
+      .catch(function () {
+        el.innerHTML = "<p class='search-hint'>Classement indisponible pour le moment.</p>";
+      });
+  };
+
+  window.loadMlsLeaders = function (target) {
+    const el = document.querySelector(target);
+    if (!el) return;
+    const url = "https://site.api.espn.com/apis/site/v2/sports/soccer/usa.1/statistics";
+    const proxy = "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
+
+    function headshot(ath) {
+      if (ath.headshot && ath.headshot.href) return ath.headshot.href;
+      if (ath.id) return "https://a.espncdn.com/i/headshots/soccer/players/full/" + ath.id + ".png";
+      return "";
+    }
+    function initials(name) {
+      return String(name)
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map(function (w) { return w.charAt(0).toUpperCase(); })
+        .join("");
+    }
+    function onlyNumber(row) {
+      if (row.value !== undefined && row.value !== null && row.value !== "") {
+        return String(Math.round(Number(row.value)));
+      }
+      const t = String(row.displayValue || "");
+      const m = t.match(/Goals:\s*(\d+)/i) || t.match(/Assists:\s*(\d+)/i);
+      return m ? m[1] : "";
+    }
+    function list(block, label) {
+      const rows = (block.leaders || []).slice(0, 10);
+      let html = "<div class='lead-col'><h3>" + label + "</h3><ol class='lead-list'>";
+      rows.forEach(function (row, i) {
+        const a = row.athlete || {};
+        const name = a.fullName || a.displayName || a.shortName || "Joueur";
+        const src = headshot(a);
+        const val = onlyNumber(row);
+        html +=
+          "<li><em>" + (i + 1) + "</em>" +
+          '<span class="lead-ava"><i>' + initials(name) + "</i>" +
+          (src ? '<img src="' + src + '" alt="" onerror="this.remove()">' : "") +
+          "</span>" +
+          "<span>" + name + "</span><strong>" + val + "</strong></li>";
+      });
+      html += "</ol></div>";
+      return html;
+    }
+    function draw(data) {
+      const stats = data.stats || [];
+      const goals = stats.find(function (s) { return /goal/i.test(s.name || s.abbreviation || ""); }) || stats[0];
+      const assists = stats.find(function (s) { return /assist/i.test(s.name || s.abbreviation || ""); }) || stats[1];
+      if (!goals && !assists) throw new Error("empty");
+      el.innerHTML =
+        "<h3 class='stand-title'>Buteurs et passeurs</h3><div class='lead-grid'>" +
+        (goals ? list(goals, "Meilleurs buteurs") : "") +
+        (assists ? list(assists, "Meilleurs passeurs") : "") +
+        "</div>";
+    }
+    fetch(url)
+      .then(function (r) { if (!r.ok) throw new Error("espn"); return r.json(); })
+      .then(draw)
+      .catch(function () {
+        return fetch(proxy).then(function (r) { return r.json(); }).then(draw);
+      })
+      .catch(function () {
+        el.innerHTML = "<p class='search-hint'>Classements buteurs indisponibles.</p>";
+      });
   };
 
   function fold(s) {
