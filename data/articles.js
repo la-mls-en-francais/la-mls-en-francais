@@ -1,14 +1,5 @@
 window.FOLIO_ARTICLES = [  {
-    id: "test",
-    title: "test",
-    category: "MLS",
-    date: "1 septembre 2026",
-    dateISO: "2026-09-01",
-    readTime: "1 min",
-    cover: "img/logo.png",
-    excerpt: "test",
-    source: "La MLS en Français",
-    body: "<p>test</p>"
+   
   },
 
   {
