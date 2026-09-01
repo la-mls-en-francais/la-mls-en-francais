@@ -8,6 +8,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="img/logo.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#002395">
+  <link rel="apple-touch-icon" href="img/icon-192.png">
+
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -25,6 +29,9 @@
         <a href="index.html">Accueil</a>
         <a href="bibliotheque.html">Magazines</a>
         <a href="articles.html">Articles</a>
+        <a href="matchs.html">Matchs</a>
+        <a href="actu.html">Actualité</a>
+        <a href="mercato.html">Mercato</a>
         <a href="a-propos.html">À propos</a>
         <a class="nav-cta" href="lire.html?id=mls-n1">Feuilleter</a>
       </nav>
@@ -35,7 +42,7 @@
     <div class="wrap">
       <p class="eyebrow">Rayonnage</p>
       <h1>Bibliothèque</h1>
-      <p class="lede">Tous les numéros publiés sur votre kiosque. Filtrez par rubrique, puis ouvrez pour feuilleter.</p>
+      <p class="lede">Tous les numéros du Magazine League Soccer à feuilleter.</p>
 
       <div class="filters" id="filters"></div>
       <div class="grid-mags" id="lib-grid"></div>
@@ -45,7 +52,7 @@
   <footer>
     <div class="wrap footer-inner">
       <div>La MLS en Français</div>
-      <div><a href="publier.html">Ajouter un magazine</a></div>
+      <div><a href="index.html">Accueil</a></div>
     </div>
   </footer>
 
@@ -67,5 +74,19 @@
     }
     draw();
   </script>
+<!-- Cloudflare Web Analytics (sauf admin / opt-out) -->
+<script>
+(function () {
+  try {
+    if (localStorage.getItem("folio_auth") === "1") return;
+    if (localStorage.getItem("folio_nostats") === "1") return;
+  } catch (e) {}
+  var s = document.createElement("script");
+  s.defer = true;
+  s.src = "https://static.cloudflareinsights.com/beacon.min.js";
+  s.setAttribute("data-cf-beacon", '{"token": "23386e57e82442c2a7a253814341fc16"}');
+  document.body.appendChild(s);
+})();
+</script>
 </body>
 </html>

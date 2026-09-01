@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="robots" content="noindex,nofollow">
-  <title>Rédaction — La MLS en Français</title>
+  <title>Rumeurs et transferts MLS — La MLS en Français</title>
   <link rel="icon" type="image/png" href="img/logo.png">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#002395">
@@ -26,29 +25,33 @@
         <a href="bibliotheque.html">Magazines</a>
         <a href="matchs.html">Matchs</a>
         <a href="actu.html">Actualité</a>
-        <a href="mercato.html">Mercato</a>
+        <a class="active" href="mercato.html">Mercato</a>
         <a href="a-propos.html">À propos</a>
       </nav>
     </div>
   </header>
 
-  <main class="wrap redac" id="redac-root">
-    <p class="search-hint">Chargement…</p>
-  </main>
+  <section class="band">
+    <div class="wrap">
+      <p class="kicker">Fil MLS</p>
+      <h1>Rumeurs et transferts</h1>
+      <p class="search-hint">Mercato, prêts, rumeurs. Tout ce qui a déjà été vu sur le site reste listé ici, les nouveautés s’ajoutent toutes seules.</p>
+      <div class="panel">
+        <div class="news-list news-page" id="mls-rumors" data-limit="7">
+          <p class="search-hint">Chargement…</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <footer>
     <div class="wrap footer-inner">
-      <div>Espace privé</div>
-      <div><a href="index.html">Retour à l’accueil</a></div>
+      <div>La MLS en Français</div>
+      <div><a href="index.html">Accueil</a></div>
     </div>
   </footer>
-
-  <script src="https://unpkg.com/mammoth@1.8.0/mammoth.browser.min.js"></script>
-  <script src="data/magazines.js"></script>
-  <script src="data/articles.js"></script>
-  <script src="js/app.js?v=20260901c"></script>
-  <script src="js/sync.js?v=20260901c"></script>
-  <script src="js/redaction.js?v=20260901c"></script>
+  <script src="js/app.js"></script>
+  <script>if (window.loadMlsNews) loadMlsNews();</script>
 <!-- Cloudflare Web Analytics (sauf admin / opt-out) -->
 <script>
 (function () {

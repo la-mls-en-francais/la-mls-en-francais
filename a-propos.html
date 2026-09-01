@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>À propos — La MLS en Français</title>
   <link rel="icon" type="image/png" href="img/logo.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#002395">
+  <link rel="apple-touch-icon" href="img/icon-192.png">
+
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -21,6 +25,9 @@
         <a href="index.html">Accueil</a>
         <a href="articles.html">Articles</a>
         <a href="bibliotheque.html">Magazines</a>
+        <a href="matchs.html">Matchs</a>
+        <a href="actu.html">Actualité</a>
+        <a href="mercato.html">Mercato</a>
         <a href="a-propos.html">À propos</a>
       </nav>
     </div>
@@ -43,5 +50,19 @@
     </div>
   </footer>
   <script src="js/app.js"></script>
+<!-- Cloudflare Web Analytics (sauf admin / opt-out) -->
+<script>
+(function () {
+  try {
+    if (localStorage.getItem("folio_auth") === "1") return;
+    if (localStorage.getItem("folio_nostats") === "1") return;
+  } catch (e) {}
+  var s = document.createElement("script");
+  s.defer = true;
+  s.src = "https://static.cloudflareinsights.com/beacon.min.js";
+  s.setAttribute("data-cf-beacon", '{"token": "23386e57e82442c2a7a253814341fc16"}');
+  document.body.appendChild(s);
+})();
+</script>
 </body>
 </html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Matchs et classement — La MLS en Français</title>
+  <link rel="icon" type="image/png" href="img/logo.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#002395">
+  <link rel="apple-touch-icon" href="img/icon-192.png">
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="index.html">
+        <img class="brand-logo" src="img/logo.png" alt="Logo La MLS en Français">
+        <span class="brand-text"><span class="brand-mark">La MLS en Français</span></span>
+      </a>
+      <button class="menu-btn" aria-label="Menu">☰</button>
+      <nav>
+        <a href="index.html">Accueil</a>
+        <a href="articles.html">Articles</a>
+        <a href="bibliotheque.html">Magazines</a>
+        <a class="active" href="matchs.html">Matchs</a>
+        <a href="actu.html">Actualité</a>
+        <a href="mercato.html">Mercato</a>
+        <a href="a-propos.html">À propos</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="band">
+    <div class="wrap">
+      <p class="kicker">MLS · Live</p>
+      <h1>Matchs et classement</h1>
+      <p class="search-hint">Scores, classement, buteurs et passeurs. Vérification sur MLSSoccer.com.</p>
+      <div class="panel">
+        <h2>Matchs et scores</h2>
+        <div class="score-mini-list" id="score-live">
+          <p class="search-hint">Chargement des scores…</p>
+        </div>
+        <a class="text-link" href="https://www.sofascore.com/fr/football/tournament/usa/mls/242" target="_blank" rel="noopener">Tous les scores →</a>
+        <div class="stand-wrap" id="mls-standings">
+          <p class="search-hint">Chargement du classement…</p>
+        </div>
+        <a class="text-link" href="https://www.mlssoccer.com/standings/" target="_blank" rel="noopener">Classement officiel MLSSoccer.com →</a>
+        <div class="stand-wrap" id="mls-leaders">
+          <p class="search-hint">Chargement des buteurs et passeurs…</p>
+        </div>
+        <p class="source-line">Source officielle à consulter :
+          <a href="https://www.mlssoccer.com/schedule/" target="_blank" rel="noopener">Calendrier</a> ·
+          <a href="https://www.mlssoccer.com/standings/" target="_blank" rel="noopener">Classement</a> ·
+          <a href="https://www.mlssoccer.com/stats/" target="_blank" rel="noopener">Stats joueurs</a>
+          — MLSSoccer.com</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap footer-inner">
+      <div>La MLS en Français</div>
+      <div><a href="index.html">Accueil</a></div>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+  <script>
+    if (window.loadMlsScores) loadMlsScores("#score-live");
+    if (window.loadMlsStandings) loadMlsStandings("#mls-standings");
+    if (window.loadMlsLeaders) loadMlsLeaders("#mls-leaders");
+  </script>
+<!-- Cloudflare Web Analytics (sauf admin / opt-out) -->
+<script>
+(function () {
+  try {
+    if (localStorage.getItem("folio_auth") === "1") return;
+    if (localStorage.getItem("folio_nostats") === "1") return;
+  } catch (e) {}
+  var s = document.createElement("script");
+  s.defer = true;
+  s.src = "https://static.cloudflareinsights.com/beacon.min.js";
+  s.setAttribute("data-cf-beacon", '{"token": "23386e57e82442c2a7a253814341fc16"}');
+  document.body.appendChild(s);
+})();
+</script>
+</body>
+</html>
